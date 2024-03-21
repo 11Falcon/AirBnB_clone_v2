@@ -1,7 +1,9 @@
 #!/usr/bin/python3
-""" Console Module """
+"""Console Module"""
 import cmd
 import sys
+sys.path.insert(0, '/home/kati/AirBnB_clone_v2/myenv/lib/python3.11')
+
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -162,7 +164,7 @@ class HBNBCommand(cmd.Cmd):
         new = args.partition(" ")
         c_name = new[0]
         c_id = new[2]
-        
+
         # guard against trailing args
         if c_id and ' ' in c_id:
             c_id = c_id.partition(' ')[0]
@@ -213,7 +215,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del(storage.all()[key])
+            del (storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -345,6 +347,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()

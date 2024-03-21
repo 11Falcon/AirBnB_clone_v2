@@ -1,19 +1,20 @@
 #!/usr/bin/python3
-"""Defines the DBStorage engine."""
-from os import getenv
-from models.base_model import Base, BaseModel
-from models.amenity import Amenity
+"""This module defines the DBStorage class"""
+
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from models.base_model import Base
+from models.user import User
+from models.state import State
 from models.city import City
+from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
-from models.state import State
-from models.user import User
-from sqlalchemy import create_engine
-from sqlalchemy.orm import relationship, scoped_session, sessionmaker
 
 
 class DBStorage:
-    """ This class manages storage of hbnb models in a MySQL database """
+    """This class manages storage of hbnb models in a MySQL database"""
 
     __engine = None
     __session = None
