@@ -34,4 +34,4 @@ class State(BaseModel, Base):
             for key, value in cities_dict.items():
                 if self.id == value.state_id:
                     cities.append(value)
-            return cities
+                return cities
