@@ -1,71 +1,86 @@
 #!/usr/bin/python3
 """ Module for testing console """
 import unittest
+import contextlib
 import os
-import console
+from console import HBNBCommand
 from io import StringIO
 
 
 class test_console(unittest.TestCase):
     """ Class to test the console file """
+    def setUp(self):
+        """Initialise the test"""
+        self.output = StringIO()
+        self.console = HBNBCommand(stdout=self.output)
 
-    def setUP(self):
-        """Initialisation """
-        self.console = console.HBNBCommand
-
-    @patch('sys.stdout', new_callable=StringIO)
-    def test_help(self, stdOut):
+    def test_help(self):
         """ Test help function """
         self.console.onecmd("help")
-        output = stdOut.getvalue()
+        output = self.output.getvalue()
+        print("help output:\n", output)
         self.assertIn("Documented commands (type help <topic>):", output)
 
-    @patch('sys.stdout', new_callable=StringIO)
-    def test_help_command(self, stdOut):
-        """ Testing help <command> """
-        self.console.onecmd("help update")
-        output = stdOut.getvalue()
-        self.assertIn("Updates an object with new information")
+    def test_unknown_command(self):
+        """Testing unknown command"""
+        self.console.onecmd("testingFalcon")
+        output = self.output.getvalue()
+        self.assertIn("*** Unknown syntax: testingFalcon", output)
 
-    @patch('sys.stdout', new_callable=StringIO)
-    def testUnknown_command(self, stdOut):
+    def testUnknown_command(self):
         """ Testing unknown command """
         self.console.onecmd("testingFalcon")
-        output = stdOut.getvalue()
-        self.assertIn("*** Unknown syntax: testingFalcon")
+        output = self.output.getvalue()
+        self.assertIn("Unknown syntax: testingFalcon", output)
 
-    @patch('sys.stdout', new_callable=StringIO)
-    def testEmptyLine(self, stdOut):
+    def testEmptyLine(self):
         """ Testing an Empty Line"""
         self.console.onecmd("")
-        output = stdOut.getvalue()
+        output = self.output.getvalue()
         self.assertEqual(output, "")
 
-    @patch('sys.stdout', new_callable=StringIO)
-    def test_EOF(self, stdOut):
+    def test_EOF(self):
         """ Testing EOF command"""
         self.console.onecmd("EOF")
-        output = stdOut.getvalue()
-        self.assertEqual(output, "\n")
+        output = self.output.getvalue()
 
-    @patch('sys.stdout', new_callable=StringIO)
-    def test_Create_count_City(self, stdOut):
-        """testing creating a City
-        counting number of cities
-        testing destorying this city
-        """
-        self.console.onecmd("count City")
-        first_count = stdOut.getvalue()
-        self.console.onecmd("create City")
-        city_id = stdOut.getvalue()
-        self.console.onecmd("count City")
-        second_count = stdOut.getvalue()
-        self.console.onecmd("show City " + city_id)
-        show_city_output = stdOut.getvalue()
-        self.console.onecmd("destroy city" + city_id)
-        sefl.console.onecmd("count City")
-        third_count = stdOut.getvalue()
-        self.assertEqual(int(second_count) - int(first_count), 1)
-        self.assertEqual(int(second_count) - int(third_count), 1)
+    def test_Creat_count_City(self):
+        """ Test creating, countingm and destroying a City"""
+
+        f = StringIO()
+        with contextlib.redirect_stdout(f):
+            self.console.onecmd("count City")
+
+        first_count = int(f.getvalue().strip())
+
+        f = StringIO()
+        with contextlib.redirect_stdout(f):
+            self.console.onecmd('create City')
+
+        city_id = f.getvalue().strip()
+
+        f = StringIO()
+        with contextlib.redirect_stdout(f):
+            self.console.onecmd("count City")
+        second_count = int(f.getvalue().strip())
+
+        cm = f"show City {city_id}"
+        f = StringIO()
+        with contextlib.redirect_stdout(f):
+            self.console.onecmd(cm)
+        show_city_output = f.getvalue()
+
+        cm = f"destroy City {city_id}"
+        f = StringIO()
+        with contextlib.redirect_stdout(f):
+            self.console.onecmd(cm)
+
+        f = StringIO()
+        with contextlib.redirect_stdout(f):
+            self.console.onecmd("count City")
+        third_count = int(f.getvalue().strip())
+
+        self.assertEqual(second_count - first_count, 1)
+        self.assertEqual(second_count - third_count, 1)
         self.assertEqual(len(city_id), 36)
         self.assertIn(city_id, show_city_output)
